@@ -13,7 +13,9 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI || `${protocol}//${hostname}:${port}/${dbName}`, { useNewUrlParser: true}).then((res) => {
     console.log("Connection to db successful  ");
 });
-
+// mongoose.connect("mongodb://batman0071:i7bhaukal@ds125372.mlab.com:25372/billama-db", { useNewUrlParser: true}).then((res) => {
+//     console.log("Connection to db successful  ");
+// });
 
 
 module.exports = {
