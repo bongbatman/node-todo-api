@@ -14,6 +14,8 @@ mongoose.connect(`${protocol}//${hostname}:${port}/${dbName}`, { useNewUrlParser
     console.log("Connection to db successful  ");
 });
 
+
+
 module.exports = {
   mongoose
 };
