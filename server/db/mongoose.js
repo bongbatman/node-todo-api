@@ -10,7 +10,7 @@ const dbName = "TodoApp";
 mongoose.Promise = global.Promise;
 
 //actual connection to db server
-mongoose.connect(`${protocol}//${hostname}:${port}/${dbName}`, { useNewUrlParser: true}).then((res) => {
+mongoose.connect(process.env.MONGODB_URI || `${protocol}//${hostname}:${port}/${dbName}`, { useNewUrlParser: true}).then((res) => {
     console.log("Connection to db successful  ");
 });
 
