@@ -1,3 +1,5 @@
+//no need of any exports as its a relative file too generic
+require('./config/config');
 //library imports
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,7 +13,7 @@ let {User} = require('./models/user');
 
 let app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 
 
