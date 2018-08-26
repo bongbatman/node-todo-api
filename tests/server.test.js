@@ -140,3 +140,54 @@ describe("GET /todos/:id", () => {
     });
 
 });
+
+
+describe('DELETE /todos/:id', () => {
+    it('should delete todo with id', function (done) {
+        request(app)
+            .delete(`/todos/${todos[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body._id).toBe(todos[0]._id.toHexString());
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                Todo.findById(todos[0]._id.toHexString()).then((todo) => {
+
+
+                    expect(todo).toStrictEqual(null);
+                    done();
+
+                }).catch((e) => {
+                    console.log(e);
+                });
+
+
+
+            })
+
+
+    });
+
+    it('should return 404 if todo not found', function (done) {
+        let id = new ObjectID();
+
+        request(app)
+            .delete(`/todos/${id.toHexString()}`) // passed id is object so we need to change ti to hec string
+            .send(todos[0])
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 404 for non-object ID', function (done) {
+
+        request(app)
+            .delete("/todos/123abc") // passed id is object so we need to change ti to hec string
+            .send(todos[0])
+            .expect(404)
+            .end(done);
+    });
+});

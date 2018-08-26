@@ -68,6 +68,33 @@ app.get('/todos/:id', (req, res) => {
 
 });
 
+//delete todo by id passing id as url parameter
+app.delete('/todos/:id', (req, res) => {
+    //req.params is an object containing url parameters
+    let id = req.params.id;
+
+    if(!ObjectID.isValid(id)) {
+        res.status(404).send("ID not valid");
+    }else{
+        // res.send(req.params.id);
+        Todo.findByIdAndRemove(id).then((todo) => {
+            if (todo === null) {
+                //return is important or else the code will continue
+                return res.status(404).send()
+            }
+            res.send(todo);
+
+        }).catch((e) => {
+            res.status(404).send();
+        });
+
+
+    }
+
+});
+
+
+
 app.listen(port, () => {
     console.log(`started on port ${port}`);
 });

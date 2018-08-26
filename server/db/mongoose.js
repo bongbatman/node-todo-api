@@ -9,7 +9,7 @@ const dbName = "TodoApp";
 //telling mongoose to use built in promise
 mongoose.Promise = global.Promise;
 
-//actual connection to db server
+//actual connection to db server if we use mlab addon then we need to use MONGOLAB_URI otheriwse PROD_MONGODB
 mongoose.connect(process.env.PROD_MONGODB || `${protocol}//${hostname}:${port}/${dbName}`, { useNewUrlParser: true}).then((res) => {
     console.log("Connection to db successful  ");
 });
