@@ -14,7 +14,9 @@ const todos = [{
     task: "For test 2"
 },{
     _id: new ObjectID(),
-    task: "For test 3"
+    task: "For test 3",
+    completed: true,
+    completedAt: 999281
 }];
 
 //before any test
@@ -105,7 +107,6 @@ describe("GET /todos/:id", () => {
     it('should get todo with id', function (done) {
         request(app)
             .get(`/todos/${todos[0]._id.toHexString()}`) // passed id is object so we need to change ti to hec string
-            .send(todos[0])
             .expect(200)
             .expect((res) => {
                 expect(res.body.task).toBe(todos[0].task); // change object id to hex string
@@ -125,7 +126,6 @@ describe("GET /todos/:id", () => {
 
         request(app)
             .get(`/todos/${id.toHexString()}`) // passed id is object so we need to change ti to hec string
-            .send(todos[0])
             .expect(404)
             .end(done);
     });
@@ -134,7 +134,6 @@ describe("GET /todos/:id", () => {
 
         request(app)
             .get("/todos/123abc") // passed id is object so we need to change ti to hec string
-            .send(todos[0])
             .expect(404)
             .end(done);
     });
@@ -177,7 +176,6 @@ describe('DELETE /todos/:id', () => {
 
         request(app)
             .delete(`/todos/${id.toHexString()}`) // passed id is object so we need to change ti to hec string
-            .send(todos[0])
             .expect(404)
             .end(done);
     });
@@ -186,8 +184,54 @@ describe('DELETE /todos/:id', () => {
 
         request(app)
             .delete("/todos/123abc") // passed id is object so we need to change ti to hec string
-            .send(todos[0])
             .expect(404)
             .end(done);
     });
+});
+
+
+describe('PATCH /todos/:id', () => {
+
+
+
+    it('should update the todo', function (done) {
+        //grab id of first item
+        //set completed to true and update completedAt
+        //200
+        //res.body.task is changed, completed is true and completed at is number .toBeA
+
+
+        request(app)
+            .patch(`/todos/${todos[0]._id.toHexString()}`)
+            .send({
+                task: "Updated Patch route task", //sends the data to route as body
+                completed: true
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.task).toBe("Updated Patch route task");
+                expect(res.body.completed).toBe(true);
+                expect(typeof res.body.completedAt).toBe(typeof 1);
+            })
+            .end(done);
+        
+    });
+
+    it('should clear completedAt when todo is not completed', function (done) {
+        request(app)
+            .patch(`/todos/${todos[2]._id.toHexString()}`)
+            .send({
+                task: "Updated Patch route previously completed task", //sends the data to route as body
+                completed: false
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.task).toBe("Updated Patch route previously completed task");
+                expect(res.body.completed).toBe(false);
+                expect(res.body.completedAt).toBe(null);
+            })
+            .end(done);
+    });
+
+
 });

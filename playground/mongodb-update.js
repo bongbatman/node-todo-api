@@ -58,6 +58,8 @@ MongoClient.connect(`${protocol}//${hostname}:${port}`, { useNewUrlParser: true 
 
 
 
+
+
     // client.close().then(() => {
     //     console.log(`Close db connection => Successful`);
     // }).catch((reject) => {

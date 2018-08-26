@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 //local imports - accessing mongoose like this simply connects to db as well
 let {mongoose} = require('./db/mongoose');
@@ -49,7 +50,7 @@ app.get('/todos/:id', (req, res) => {
     let id = req.params.id;
 
     if(!ObjectID.isValid(id)) {
-        res.status(404).send("ID not valid");
+        return res.status(404).send("ID not valid");
     }else{
     // res.send(req.params.id);
         Todo.findById(id).then((todo) => {
@@ -74,7 +75,7 @@ app.delete('/todos/:id', (req, res) => {
     let id = req.params.id;
 
     if(!ObjectID.isValid(id)) {
-        res.status(404).send("ID not valid");
+        return res.status(404).send("ID not valid");
     }else{
         // res.send(req.params.id);
         Todo.findByIdAndRemove(id).then((todo) => {
@@ -90,6 +91,44 @@ app.delete('/todos/:id', (req, res) => {
 
 
     }
+
+});
+
+//best practices for api development
+app.patch('/todos/:id', (req, res) => {
+    //req.params is an object containing url parameters
+    let id = req.params.id;
+
+    //use lodash here to specify the properties user will be able to update by creating a new subset
+    let body = _.pick(req.body, ['task', 'completed']);
+
+    if(!ObjectID.isValid(id)) {
+        return res.status(404).send("ID not valid");
+    }
+
+    if ((_.isBoolean(body.completed)) && body.completed) {
+        //set the property completedAt of body
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+   Todo.findByIdAndUpdate(id, {
+       $set: body
+   }, {
+       //returns new updated object can also be used as returnOriginal: flase
+       new: true
+   }).then((doc) => {
+        if (!doc) {
+            return res.sendStatus(404);
+        }
+
+        res.send(doc);
+   }).catch((e) => {
+       res.status(404).send();
+   });
+
 
 });
 
