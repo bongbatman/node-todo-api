@@ -1,0 +1,1 @@
+console.log(`hyphen from utf8 code: ${'\xad'}`);

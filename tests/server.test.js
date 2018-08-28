@@ -1,30 +1,19 @@
 const request = require('supertest');
 const assert = require('assert');
+const {populateTodos, populateUsers, todos, users} = require("./seed/seed");
 const {ObjectID} = require('mongodb');
 
 const {app} = require('../server/app');
 const {Todo} = require('../server/models/todo');
+const {User} = require('../server/models/user');
 
 //seed daa for GET /todos test
-const todos = [{
-    _id: new ObjectID(),
-    task: "For test"
-},{
-    _id: new ObjectID(),
-    task: "For test 2"
-},{
-    _id: new ObjectID(),
-    task: "For test 3",
-    completed: true,
-    completedAt: 999281
-}];
+
 
 //before any test
 beforeEach((done) => {
-   Todo.deleteMany({}).then(() => {
-       //call return to chain then()
-       return Todo.insertMany(todos);
-   }).then(() => done());
+  populateUsers(done);
+  populateTodos(done);
 
 });
 
@@ -232,6 +221,101 @@ describe('PATCH /todos/:id', () => {
             })
             .end(done);
     });
+
+    describe('GET /users/me', () => {
+
+        it('should return a user if authenticated', function (done) {
+            request(app)
+                .get('/users/me')
+                .set({"x-auth" : users[0].tokens[0].token})
+                .expect(200)
+                .expect((res) => {
+
+                    //as we only send _id and email so we are checking just that
+                    expect(res.body._id).toBe(users[0]._id.toHexString());
+                    expect(res.body.email).toBe(users[0].email);
+                })
+                .end(done);
+        });
+
+        it('should return a 401 if not authenticated', function (done) {
+
+            request(app)
+                .get('/users/me')
+                .expect(401)
+                .expect((res) => {
+                    //as the response is empty object. We can use deepStrictEqual to match two objects
+                    assert.deepStrictEqual(res, {});
+                })
+                .end(done);
+        });
+
+
+    });
+
+
+    describe('POST /users', () => {
+
+        it('should signup new user', function (done) {
+
+            let newUser = {
+              email: "newUser@example.com",
+              password: "newUserPass"
+            };
+
+            request(app)
+                .post('/users')
+                .send(newUser)
+                .expect(200)
+                .expect((res) => {
+                    assert.deepStrictEqual(res.body.email, newUser.email);
+                })
+                .end((err, res) => {
+                    if (err){
+                        return done();
+                    }
+
+                    /**
+                     * As header name has "-" hyphen in it so we need to use the bracket notation instead of  '.' dot notation
+                     */
+                    User.findByToken(res.header['x-auth']).then((user) => {
+                        expect(res.body._id).toBe(user._id.toHexString());
+                        done();
+
+                    });
+
+                });
+
+        });
+
+        it('should return validation error when request invalid', function (done) {
+
+            let newUser = {
+                email: "newUserexample.com",
+                password: "new"
+            };
+            request(app)
+                .post('/users')
+                .send(newUser)
+                .expect(400)
+                .end(done);
+
+        });
+
+        it('should not create user if email in use', function (done) {
+
+            request(app)
+                .post('/users')
+                .send(users[0])
+                .expect(400)
+                .end(done)
+
+        });
+
+    });
+
+
+
 
 
 });

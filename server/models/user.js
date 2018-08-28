@@ -40,10 +40,10 @@ let userSchema = new Schema({
  * @returns {PartialDeep<any>}
  */
 userSchema.methods.toJSON = function () {
-        let user = this;
-        let userObj = user.toObject();
+    let user = this;
+    let userObj = user.toObject();
 
-        return _.pick(userObj, ['_id', 'email']);
+    return _.pick(userObj, ['_id', 'email']);
 };
 
 
@@ -51,18 +51,18 @@ userSchema.methods.toJSON = function () {
  * The way to create instance methods to extend functionality. This returns a promise so that we can chain then callback.
  * @returns {Promise<string> | Promise | * | PromiseLike<string | never> | Promise<string | never>}
  */
-userSchema.methods.generateAuthToken = function ( ) { //instace method on userSchema with regular function to use this keyword
+userSchema.methods.generateAuthToken = function () { //instace method on userSchema with regular function to use this keyword
 
     //instance methods get called with individual documents ***user***
     let user = this;
-        let access = 'auth';
-        let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+    let access = 'auth';
+    let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-        user.tokens = user.tokens.concat([{access, token}]);
+    user.tokens = user.tokens.concat([{access, token}]);
 
-        return user.save().then(() => {
-            return token;
-        });
+    return user.save().then(() => {
+        return token;
+    });
 };
 
 /**
@@ -75,9 +75,9 @@ userSchema.statics.findByToken = function (token) {
     let User = this;
     let decoded;
 
-    try{
-       decoded = jwt.verify(token, 'abc123');
-    }catch (e) {
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
 
         /**
          * this can be simplified as
@@ -86,9 +86,9 @@ userSchema.statics.findByToken = function (token) {
          * return Promise.reject(e);
          * in second case e will pass on to catch block
          */
-        return new Promise((resolve, reject) =>{
+        return new Promise((resolve, reject) => {
             reject();
-        } );
+        });
     }
 
     return User.findOne({
@@ -101,17 +101,17 @@ userSchema.statics.findByToken = function (token) {
  * mongoose middleware to hash password before it is being saved
  */
 userSchema.pre("save", function (next) {
-       let user = this;
-      if (user.isModified('password')) {
-            bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(user.password, salt, (err, hash) => {
-                    user.password = hash;
-                    next();
-                });
+    let user = this;
+    if (user.isModified('password')) {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                user.password = hash;
+                next();
             });
-      }else{
-          next();
-      }
+        });
+    } else {
+        next();
+    }
 });
 
 const User = mongoose.model("Users", userSchema);
