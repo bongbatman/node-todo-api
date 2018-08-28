@@ -6,6 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
+const {login} = require("./middleware/login");
 
 //local imports - accessing mongoose like this simply connects to db as well
 let {mongoose} = require('./db/mongoose');
@@ -163,6 +164,11 @@ app.patch('/todos/:id', (req, res) => {
 app.get('/users/me', authenticate, (req,res) => {
     res.header({'x-Powered-By': 'Friendly Devs'}).send(req.user);
 
+});
+
+//POST /users/login private user login route
+app.post('/users/login', login, (req, res) => {
+    res.header({'x-Powered-By': 'Friendly Devs'}).send(res.body);
 });
 
 
