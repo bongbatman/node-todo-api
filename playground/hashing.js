@@ -1,15 +1,22 @@
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-let jwtData = {
-    id: 4
-};
+/**
+ * Simple hashing and decoding of token wth jwt token lib
+ */
+// let jwtData = {
+//     id: 4
+// };
+//
+// let jwtToken = jwt.sign(jwtData, '123abc');
+// console.log(`Signed data: ${jwtToken}`);
+//
+// let decoded = jwt.verify(jwtToken, '123abc');
+// console.log("Decoded data: ", decoded);
 
-let jwtToken = jwt.sign(jwtData, '123abc');
-console.log(`Signed data: ${jwtToken}`);
 
-let decoded = jwt.verify(jwtToken, '123abc');
-console.log("Decoded data: ", decoded);
+
 
 // let msg = 'I am a hashed string';
 // let hash = SHA256(msg).toString();
@@ -41,3 +48,26 @@ console.log("Decoded data: ", decoded);
 // } else {
 //     console.log("Data was changed. Don't trust");
 // }
+
+
+/**
+ * Using brypt to generate a salted hash of password
+ */
+
+//to avoid brute force attack we need to salt
+let password = "123abc!";
+
+
+//number of rounds makes bcrypt slow
+// bcrypt.genSalt(10, (err,salt) =>{
+//     bcrypt.hash(password, salt, (err,hash) => {
+//         console.log(hash);
+//     });
+// });
+
+
+let hashedPassword = '$2a$10$HML1VL.lCnnS7Kt/js1geuDZ02LFK/0OXbzoCOBTuBDNu1ekk24xu';
+
+bcrypt.compare(password, hashedPassword, (err, match) => {
+   console.log(match);
+});
