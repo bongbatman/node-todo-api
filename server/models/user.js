@@ -47,11 +47,13 @@ userSchema.methods.toJSON = function () {
 
 
 /**
- * The way to create modal methods to extend functionality. This returns a promise so that we can chain then callback.
+ * The way to create instance methods to extend functionality. This returns a promise so that we can chain then callback.
  * @returns {Promise<string> | Promise | * | PromiseLike<string | never> | Promise<string | never>}
  */
 userSchema.methods.generateAuthToken = function ( ) { //instace method on userSchema with regular function to use this keyword
-        let user = this;
+
+    //instance methods get called with individual documents ***user***
+    let user = this;
         let access = 'auth';
         let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
@@ -62,6 +64,38 @@ userSchema.methods.generateAuthToken = function ( ) { //instace method on userSc
         });
 };
 
+/**
+ * Returns new promise this is the model function to find user by its token
+ * @param token
+ * @returns {*}
+ */
+userSchema.statics.findByToken = function (token) {
+    //model methods get called with models ***User***
+    let User = this;
+    let decoded;
+
+    try{
+       decoded = jwt.verify(token, 'abc123');
+    }catch (e) {
+
+        /**
+         * this can be simplified as
+         * return Promise.reject();
+         * or
+         * return Promise.reject(e);
+         * in second case e will pass on to catch block
+         */
+        return new Promise((resolve, reject) =>{
+            reject();
+        } );
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+};
 
 const User = mongoose.model("Users", userSchema);
 

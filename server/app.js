@@ -1,4 +1,5 @@
 //no need of any exports as its a relative file too generic
+
 require('./config/config');
 //library imports
 const express = require('express');
@@ -10,6 +11,7 @@ const _ = require('lodash');
 let {mongoose} = require('./db/mongoose');
 let {Todo} = require('./models/todo');
 let {User} = require('./models/user');
+let {authenticate} = require("./middleware/authenticate");
 
 let app = express();
 
@@ -43,7 +45,7 @@ app.post('/users', (req, res) => {
     let user = new User(body);
 
     /**
-     * Signup method in play with custom headers in play
+     * Signup instance method in play with custom headers in play
      */
     user.save().then(() => {
         return user.generateAuthToken();
@@ -152,6 +154,16 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
+
+
+/**
+ * First private route, using middleware function defined above
+ * and then extracted to new file
+ */
+app.get('/users/me', authenticate, (req,res) => {
+    res.header({'x-Powered-By': 'Friendly Devs'}).send(req.user);
+
+});
 
 
 app.listen(port, () => {
