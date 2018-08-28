@@ -42,9 +42,14 @@ app.post('/users', (req, res) => {
 
     let user = new User(body);
 
-    user.save().then((doc) => {
-        res.send(doc);
-    }, (e) => {
+    /**
+     * Signup method in play with custom headers in play
+     */
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header({'x-auth': token, 'x-Powered-By' : 'Friendly Devs'}).send(user);
+    }).catch((e) => {
         res.status(400).send(e.message);
     });
 });
