@@ -182,13 +182,15 @@ app.post('/users/login', login, (req, res) => {
 
 });
 
+
+//private route to delete token
 app.delete('/users/me/token', authenticate, (req, res) => {
 
 
     req.user.deleteToken(req.token).then(() => {
         res.send("Successfully Logged out!");
     }, () => {
-        res.sendStatus(400);
+        res.sendStatus(401);
     });
 
 });

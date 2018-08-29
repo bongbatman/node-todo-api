@@ -370,3 +370,27 @@ describe('POST /users/login', () => {
 
 
 });
+
+describe('DELETE /users/me/token', function () {
+    it('should delete user auth token', function (done) {
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token) //don't forget tokens is an array too
+            .expect(200)
+            .expect((res) => {
+                expect(res.text).toBe("Successfully Logged out!");
+            })
+            .end(done);
+    });
+
+    it('should return 401', function (done) {
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', 'Wrong token') //don't forget tokens is an array too
+            .expect(401)
+            .expect((res) => {
+                expect(res.text).toBe("Unauthorized");
+            })
+            .end(done);
+    });
+});
