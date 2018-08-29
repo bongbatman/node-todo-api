@@ -167,8 +167,21 @@ app.get('/users/me', authenticate, (req,res) => {
 });
 
 //POST /users/login private user login route
+/**
+ * Here we use a login middleware to first login the user and then pass on here to generate auth token
+ * Same could be achieved by creating a model function getUserByCredentials and passing in email password and
+ * returning a promise when its done. Finally generating the auth token
+ */
 app.post('/users/login', login, (req, res) => {
-    res.header({'x-Powered-By': 'Friendly Devs'}).send(res.body);
+
+    let user = new User(res.body);
+    user.generateAuthToken().then((token) => {
+         res.header({'x-auth': token, 'x-Powered-By' : 'Friendly Devs'}).send(res.body);
+    }).catch((e) => {
+        res.sendStatus(400);
+    });
+
+
 });
 
 
