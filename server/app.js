@@ -19,7 +19,6 @@ let app = express();
 const port = process.env.PORT;
 
 
-
 //middleware - to store body as json by bodyParser
 app.use(bodyParser.json());
 
@@ -51,7 +50,7 @@ app.post('/users', (req, res) => {
     user.save().then(() => {
         return user.generateAuthToken();
     }).then((token) => {
-        res.header({'x-auth': token, 'x-Powered-By' : 'Friendly Devs'}).send(user);
+        res.header({'x-auth': token, 'x-Powered-By': 'Friendly Devs'}).send(user);
     }).catch((e) => {
         res.status(400).send(e.message);
     });
@@ -69,13 +68,13 @@ app.get('/todos', (req, res) => {
 
 //todo by id passing id as url parameter
 app.get('/todos/:id', (req, res) => {
-   //req.params is an object containing url parameters
+    //req.params is an object containing url parameters
     let id = req.params.id;
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send("ID not valid");
-    }else{
-    // res.send(req.params.id);
+    } else {
+        // res.send(req.params.id);
         Todo.findById(id).then((todo) => {
             if (todo === null) {
                 //return is important or else the code will continue
@@ -97,9 +96,9 @@ app.delete('/todos/:id', (req, res) => {
     //req.params is an object containing url parameters
     let id = req.params.id;
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send("ID not valid");
-    }else{
+    } else {
         // res.send(req.params.id);
         Todo.findByIdAndRemove(id).then((todo) => {
             if (todo === null) {
@@ -125,7 +124,7 @@ app.patch('/todos/:id', (req, res) => {
     //use lodash here to specify the properties user will be able to update by creating a new subset
     let body = _.pick(req.body, ['task', 'completed']);
 
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send("ID not valid");
     }
 
@@ -137,31 +136,30 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-   Todo.findByIdAndUpdate(id, {
-       $set: body
-   }, {
-       //returns new updated object can also be used as returnOriginal: flase
-       new: true
-   }).then((doc) => {
+    Todo.findByIdAndUpdate(id, {
+        $set: body
+    }, {
+        //returns new updated object can also be used as returnOriginal: flase
+        new: true
+    }).then((doc) => {
         if (!doc) {
             return res.sendStatus(404);
         }
 
         res.send(doc);
-   }).catch((e) => {
-       res.status(404).send();
-   });
+    }).catch((e) => {
+        res.status(404).send();
+    });
 
 
 });
-
 
 
 /**
  * First private route, using middleware function defined above
  * and then extracted to new file
  */
-app.get('/users/me', authenticate, (req,res) => {
+app.get('/users/me', authenticate, (req, res) => {
     res.header({'x-Powered-By': 'Friendly Devs'}).send(req.user);
 
 });
@@ -176,7 +174,7 @@ app.post('/users/login', login, (req, res) => {
 
     let user = new User(res.body);
     user.generateAuthToken().then((token) => {
-         res.header({'x-auth': token, 'x-Powered-By' : 'Friendly Devs'}).send(res.body);
+        res.header({'x-auth': token, 'x-Powered-By': 'Friendly Devs'}).send(res.body);
     }).catch((e) => {
         res.sendStatus(400);
     });
@@ -190,5 +188,5 @@ app.listen(port, () => {
 });
 
 module.exports = {
-  app
+    app
 };

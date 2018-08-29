@@ -316,6 +316,55 @@ describe('PATCH /todos/:id', () => {
 
 
 
+    describe('POST /users/login', () => {
+
+        it('should login and return user with auth token', function (done) {
+            request(app)
+                .post('/users/login')
+                .send(users[1])
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body.email).toBe(users[1].email);
+                    assert(res.header['x-auth']);
+                })
+                .end(done);
+        });
+
+        it('should return 401 if email is incorrect', function (done) {
+            let badEmailUser = {
+              email: "bademail@gmail.com",
+              password: users[1].password
+            };
+
+            request(app)
+                .post('/users/login')
+                .send(badEmailUser)
+                .expect(401)
+                .end(done);
+
+
+        });
+
+        it('should return 401 if password is incorrect', function (done) {
+            let badPasswordUser = {
+                email: users[1].email,
+                password: "biluuchutiya"
+            };
+
+            request(app)
+                .post('/users/login')
+                .send(badPasswordUser)
+                .expect(401)
+                .end(done);
+
+
+        });
+
+
+    });
+
+
+
 
 
 });
