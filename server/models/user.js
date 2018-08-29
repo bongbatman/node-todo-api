@@ -66,6 +66,25 @@ userSchema.methods.generateAuthToken = function () { //instace method on userSch
 };
 
 /**
+ * model method to deleteToken by updating the token array with $pull operator
+ * @param token
+ * @return {*}
+ */
+userSchema.methods.deleteToken = function (token) {
+    let user = this;
+
+    return user.update({
+        $pull: {
+            tokens: {
+                token
+            }
+        }
+    });
+
+
+};
+
+/**
  * Returns new promise this is the model function to find user by its token
  * @param token
  * @returns {*}
