@@ -325,7 +325,7 @@ describe('PATCH /todos/:id', () => {
                 .expect(200)
                 .expect((res) => {
                     expect(res.body.email).toBe(users[1].email);
-                    assert(res.header['x-auth']);
+                    expect(res.header['x-auth']).toBeDefined();
                 })
                 .end(done);
         });
