@@ -24,11 +24,12 @@ app.use(bodyParser.json());
 
 
 //to add a task, send back response is post is successful
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     console.log(req.body);
     let todo = new Todo({
         task: req.body.task,
-        completed: req.body.completed
+        completed: req.body.completed,
+        _creator: req.user._id
     });
 
     todo.save().then((doc) => {
@@ -57,8 +58,10 @@ app.post('/users', (req, res) => {
 });
 
 //all todos
-app.get('/todos', (req, res) => {
-    Todo.find({}).then((todos) => {
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _creator: req.user._id
+    }).then((todos) => {
         res.send({todos});
     }, (e) => {
         res.status(400).send(e.message);
@@ -67,7 +70,7 @@ app.get('/todos', (req, res) => {
 
 
 //todo by id passing id as url parameter
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     //req.params is an object containing url parameters
     let id = req.params.id;
 
@@ -75,7 +78,10 @@ app.get('/todos/:id', (req, res) => {
         return res.status(404).send("ID not valid");
     } else {
         // res.send(req.params.id);
-        Todo.findById(id).then((todo) => {
+        Todo.findOne({
+            _id: id,
+            _creator: req.user._id
+        }).then((todo) => {
             if (todo === null) {
                 //return is important or else the code will continue
                 return res.status(404).send()
@@ -92,7 +98,7 @@ app.get('/todos/:id', (req, res) => {
 });
 
 //delete todo by id passing id as url parameter
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     //req.params is an object containing url parameters
     let id = req.params.id;
 
@@ -100,7 +106,10 @@ app.delete('/todos/:id', (req, res) => {
         return res.status(404).send("ID not valid");
     } else {
         // res.send(req.params.id);
-        Todo.findByIdAndRemove(id).then((todo) => {
+        Todo.findOneAndRemove({
+            _id: id,
+            _creator: req.user._id
+        }).then((todo) => {
             if (todo === null) {
                 //return is important or else the code will continue
                 return res.status(404).send()
@@ -117,7 +126,7 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 //best practices for api development
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     //req.params is an object containing url parameters
     let id = req.params.id;
 
@@ -136,7 +145,10 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+    }, {
         $set: body
     }, {
         //returns new updated object can also be used as returnOriginal: flase

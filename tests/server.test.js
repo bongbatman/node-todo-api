@@ -22,6 +22,7 @@ describe('POST /todos', () => {
         let task = "test create Todo";
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({task})
             .expect(200)
             .expect((res) => {
@@ -48,6 +49,7 @@ describe('POST /todos', () => {
         let task = " ";
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({task})
             .expect(400)
             .expect((res) => {
@@ -76,10 +78,11 @@ describe("GET /todos", () => {
     it('should get all todos', function (done) {
         request(app)
             .get("/todos")
+            .set('x-auth', users[0].tokens[0].token)
             .send(todos)
             .expect(200)
             .expect((res) => {
-                expect(res.body.todos.length).toBe(3);
+                expect(res.body.todos.length).toBe(2);
             })
             .end((err, res) => {
                 if (err) {
@@ -96,6 +99,7 @@ describe("GET /todos/:id", () => {
     it('should get todo with id', function (done) {
         request(app)
             .get(`/todos/${todos[0]._id.toHexString()}`) // passed id is object so we need to change ti to hec string
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
                 expect(res.body.task).toBe(todos[0].task); // change object id to hex string
@@ -115,6 +119,7 @@ describe("GET /todos/:id", () => {
 
         request(app)
             .get(`/todos/${id.toHexString()}`) // passed id is object so we need to change ti to hec string
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -123,6 +128,7 @@ describe("GET /todos/:id", () => {
 
         request(app)
             .get("/todos/123abc") // passed id is object so we need to change ti to hec string
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -134,6 +140,7 @@ describe('DELETE /todos/:id', () => {
     it('should delete todo with id', function (done) {
         request(app)
             .delete(`/todos/${todos[0]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
                 expect(res.body._id).toBe(todos[0]._id.toHexString());
@@ -165,6 +172,7 @@ describe('DELETE /todos/:id', () => {
 
         request(app)
             .delete(`/todos/${id.toHexString()}`) // passed id is object so we need to change ti to hec string
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -173,6 +181,7 @@ describe('DELETE /todos/:id', () => {
 
         request(app)
             .delete("/todos/123abc") // passed id is object so we need to change ti to hec string
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -192,6 +201,7 @@ describe('PATCH /todos/:id', () => {
 
         request(app)
             .patch(`/todos/${todos[0]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({
                 task: "Updated Patch route task", //sends the data to route as body
                 completed: true
@@ -209,6 +219,7 @@ describe('PATCH /todos/:id', () => {
     it('should clear completedAt when todo is not completed', function (done) {
         request(app)
             .patch(`/todos/${todos[2]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({
                 task: "Updated Patch route previously completed task", //sends the data to route as body
                 completed: false
@@ -329,10 +340,10 @@ describe('POST /users/login', () => {
     it('should login and return user with auth token', function (done) {
         request(app)
             .post('/users/login')
-            .send(users[1])
+            .send(users[0])
             .expect(200)
             .expect((res) => {
-                expect(res.body.email).toBe(users[1].email);
+                expect(res.body.email).toBe(users[0].email);
                 expect(res.header['x-auth']).toBeDefined();
             })
             .end(done);
@@ -380,7 +391,7 @@ describe('DELETE /users/me/token', function () {
             .expect((res) => {
                 expect(res.text).toBe("Successfully Logged out!");
             })
-            .end(done);
+            .end(done); //we can also add async method to query token array and check its' length to be zero
     });
 
     it('should return 401', function (done) {
